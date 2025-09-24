@@ -1,70 +1,171 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Generator Kode QR By Afkarf</title>
+    <title>Generator Kode QR</title>
     <style>
+        /* CSS yang Diperbarui */
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font yang lebih modern */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             flex-direction: column;
+            background-color: #ffffff; /* Latar belakang sedikit keabu-abuan */
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 40px; /* Padding lebih besar */
+            border-radius: 15px; /* Sudut lebih bulat */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08); /* Bayangan lebih lembut */
+            text-align: center;
+            width: 90%;
+            max-width: 400px; /* Lebar maksimum untuk container */
+            transition: all 0.3s ease;
+        }
+        .container:hover {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12); /* Efek bayangan saat di-hover */
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
         }
         #qrcode {
             width: 256px;
             height: 256px;
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
+            margin: 25px auto;
+            border: none; /* Menghilangkan border default */
+            padding: 10px; /* Memberi sedikit ruang di dalam */
+            background: #ffffff; /* Latar belakang hitam untuk QR code terbalik */
+            border-radius: 10px; /* Sudut bulat untuk area QR code */
+            display: flex; /* Menggunakan flexbox untuk memusatkan canvas */
+            justify-content: center;
+            align-items: center;
+        }
+        #qrcode canvas {
+             /* Pastikan canvas tidak melebihi padding parent */
+            max-width: 100%;
+            height: auto;
         }
         input[type="text"] {
-            width: 300px;
-            padding: 10px;
-            margin-bottom: 10px;
+            width: calc(100% - 24px); /* Kalkulasi lebar agar pas */
+            padding: 12px;
+            margin-bottom: 20px; /* Jarak lebih besar */
+            border: 1px solid #ddd;
+            border-radius: 8px; /* Sudut lebih bulat */
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2); /* Efek glow saat input aktif */
         }
         button {
-            padding: 10px 20px;
+            padding: 12px 25px;
             margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600; /* Teks tombol lebih tebal */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transisi halus */
+            display: inline-block; /* Agar transform bekerja */
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px); /* Efek sedikit terangkat saat di-hover */
+        }
+        button:active {
+            transform: translateY(0); /* Kembali ke posisi semula saat diklik */
+        }
+        #download-button {
+            background-color: #28a745;
+        }
+        #download-button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
 <body>
 
-    <h2>Generator Kode QR By Afkarf</h2>
-    <input type="text" id="text-input" placeholder="Masukkan teks atau URL di sini">
-    <button id="generate-button">Hasilkan Kode QR</button>
+    <div class="container">
+        <h2>Generator Kode QR By Afkarf</h2>
+        <input type="text" id="text-input" placeholder="Masukkan teks atau URL di sini">
+        <br>
+        <button id="generate-button">Hasilkan Kode QR</button>
 
-    <div id="qrcode"></div>
+        <div id="qrcode"></div>
 
-    <button id="download-button" style="display: none;">Unduh Kode QR</button>
+        <button id="download-button" style="display: none;">Unduh sebagai JPG</button>
+    </div>
 
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
+        // Membuat objek QRCode dengan pengaturan warna yang DIBALIK
         var qrcode = new QRCode(document.getElementById("qrcode"), {
             width : 256,
-            height : 256
+            height : 256,
+            colorDark : "#ffffff", // Warna kode QR menjadi PUTIH
+            colorLight : "#000000", // Warna latar belakang menjadi HITAM
+            correctLevel : QRCode.CorrectLevel.H
         });
 
         function generateQrCode() {
             var text = document.getElementById("text-input").value;
+            var qrCodeContainer = document.getElementById("qrcode");
+            
+            // Mengosongkan kontainer sebelum menghasilkan kode baru
+            qrCodeContainer.innerHTML = ''; 
+            
             if (text) {
-                qrcode.makeCode(text);
-                document.getElementById("download-button").style.display = "block";
+                // Membuat ulang objek untuk menghindari masalah pada generasi kedua, dst.
+                qrcode = new QRCode(qrCodeContainer, {
+                    text: text,
+                    width : 256,
+                    height : 256,
+                    colorDark : "#ffffff",
+                    colorLight : "#000000",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+                
+                document.getElementById("download-button").style.display = "inline-block";
             } else {
                 alert("Silakan masukkan teks atau URL");
             }
         }
 
+        // Event listener untuk tombol "Hasilkan"
         document.getElementById("generate-button").addEventListener("click", function(){
             generateQrCode();
         });
 
+        // Event listener untuk tombol "Unduh"
         document.getElementById("download-button").addEventListener("click", function(){
             var canvas = document.querySelector("#qrcode canvas");
-            var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            
+            if (!canvas) {
+                alert("Silakan hasilkan Kode QR terlebih dahulu.");
+                return;
+            }
+            
+            // Membuat canvas baru dengan latar belakang HITAM (penting untuk format JPG)
+            var blackBgCanvas = document.createElement('canvas');
+            blackBgCanvas.width = canvas.width;
+            blackBgCanvas.height = canvas.height;
+            var ctx = blackBgCanvas.getContext('2d');
+            ctx.fillStyle = '#000'; // Mengisi latar belakang dengan warna hitam
+            ctx.fillRect(0, 0, blackBgCanvas.width, blackBgCanvas.height);
+            ctx.drawImage(canvas, 0, 0); // Menggambar QR code di atasnya
+
+            // Mengubah canvas menjadi data URL format JPG
+            var image = blackBgCanvas.toDataURL("image/jpeg", 1.0);
+            
             var link = document.createElement('a');
-            link.download = 'kode-qr.png';
+            link.download = 'kode-qr-terbalik.jpg'; // Mengatur nama file
             link.href = image;
             link.click();
         });
