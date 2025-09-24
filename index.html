@@ -35,7 +35,7 @@
             width: 256px;
             height: 256px;
             margin: 25px auto;
-            border: none; /* Menghilangkan border default */
+            border: 2px solid #000; /* Menambahkan border hitam */
             padding: 10px; /* Memberi sedikit ruang di dalam */
             background: #ffffff; /* Latar belakang hitam untuk QR code terbalik */
             border-radius: 10px; /* Sudut bulat untuk area QR code */
@@ -145,27 +145,35 @@
 
         // Event listener untuk tombol "Unduh"
         document.getElementById("download-button").addEventListener("click", function(){
-            var canvas = document.querySelector("#qrcode canvas");
+            var originalCanvas = document.querySelector("#qrcode canvas");
             
-            if (!canvas) {
+            if (!originalCanvas) {
                 alert("Silakan hasilkan Kode QR terlebih dahulu.");
                 return;
             }
             
-            // Membuat canvas baru dengan latar belakang HITAM (penting untuk format JPG)
-            var blackBgCanvas = document.createElement('canvas');
-            blackBgCanvas.width = canvas.width;
-            blackBgCanvas.height = canvas.height;
-            var ctx = blackBgCanvas.getContext('2d');
-            ctx.fillStyle = '#000'; // Mengisi latar belakang dengan warna hitam
-            ctx.fillRect(0, 0, blackBgCanvas.width, blackBgCanvas.height);
-            ctx.drawImage(canvas, 0, 0); // Menggambar QR code di atasnya
+            // Membuat canvas baru dengan ukuran 500x500
+            var downloadCanvas = document.createElement('canvas');
+            downloadCanvas.width = 500;
+            downloadCanvas.height = 500;
+            var ctx = downloadCanvas.getContext('2d');
+
+            var borderSize = 15; // Atur ketebalan border sesuai keinginan
+
+            // 1. Isi seluruh canvas unduhan dengan warna hitam, yang akan berfungsi sebagai border.
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
+            
+            // 2. Gambar kode QR asli di atasnya, tetapi lebih kecil, sehingga menyisakan border hitam di sekelilingnya.
+            // Posisi gambar (x, y) adalah (borderSize, borderSize)
+            // Ukuran gambar adalah total lebar/tinggi dikurangi dua kali ukuran border
+            ctx.drawImage(originalCanvas, borderSize, borderSize, downloadCanvas.width - (borderSize * 2), downloadCanvas.height - (borderSize * 2));
 
             // Mengubah canvas menjadi data URL format JPG
-            var image = blackBgCanvas.toDataURL("image/jpeg", 1.0);
+            var image = downloadCanvas.toDataURL("image/jpeg", 1.0);
             
             var link = document.createElement('a');
-            link.download = 'kode-qr-terbalik.jpg'; // Mengatur nama file
+            link.download = 'Code-qr.jpg'; // Mengatur nama file
             link.href = image;
             link.click();
         });
