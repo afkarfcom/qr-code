@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generator Kode QR By Afkarf</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        #qrcode {
+            width: 256px;
+            height: 256px;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Generator Kode QR</h2>
+    <input type="text" id="text-input" placeholder="Masukkan teks atau URL di sini">
+    <button id="generate-button">Hasilkan Kode QR</button>
+
+    <div id="qrcode"></div>
+
+    <button id="download-button" style="display: none;">Unduh Kode QR</button>
+
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script>
+        var qrcode = new QRCode(document.getElementById("qrcode"), {
+            width : 256,
+            height : 256
+        });
+
+        function generateQrCode() {
+            var text = document.getElementById("text-input").value;
+            if (text) {
+                qrcode.makeCode(text);
+                document.getElementById("download-button").style.display = "block";
+            } else {
+                alert("Silakan masukkan teks atau URL");
+            }
+        }
+
+        document.getElementById("generate-button").addEventListener("click", function(){
+            generateQrCode();
+        });
+
+        document.getElementById("download-button").addEventListener("click", function(){
+            var canvas = document.querySelector("#qrcode canvas");
+            var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            var link = document.createElement('a');
+            link.download = 'kode-qr.png';
+            link.href = image;
+            link.click();
+        });
+    </script>
+
+</body>
+</html>
