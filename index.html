@@ -32,8 +32,8 @@
             color: #333;
         }
         #qrcode {
-            width: 256px;
-            height: 256px;
+            width: 500px;
+            height: 500px;
             margin: 25px auto;
             border: none; /* Menghilangkan border default */
             padding: 10px; /* Memberi sedikit ruang di dalam */
@@ -107,8 +107,8 @@
     <script>
         // Membuat objek QRCode dengan pengaturan warna yang DIBALIK
         var qrcode = new QRCode(document.getElementById("qrcode"), {
-            width : 256,
-            height : 256,
+            width : 500,
+            height : 500,
             colorDark : "#ffffff", // Warna kode QR menjadi PUTIH
             colorLight : "#000000", // Warna latar belakang menjadi HITAM
             correctLevel : QRCode.CorrectLevel.H
