@@ -3,64 +3,61 @@
 <head>
     <title>Generator Kode QR</title>
     <style>
-        /* CSS yang Diperbarui */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font yang lebih modern */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             flex-direction: column;
-            background-color: #ffffff; /* Latar belakang sedikit keabu-abuan */
+            background-color: #f4f7f9;
             margin: 0;
         }
         .container {
             background-color: white;
-            padding: 40px; /* Padding lebih besar */
-            border-radius: 15px; /* Sudut lebih bulat */
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08); /* Bayangan lebih lembut */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             text-align: center;
             width: 90%;
-            max-width: 400px; /* Lebar maksimum untuk container */
+            max-width: 400px;
             transition: all 0.3s ease;
         }
         .container:hover {
-            box-shadow: 0 15px 35px rgba(0,0,0,0.12); /* Efek bayangan saat di-hover */
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
         }
         h2 {
             margin-top: 0;
             color: #333;
         }
-        /* PERUBAHAN DI SINI */
         #qrcode {
             width: 256px;
             height: 256px;
             margin: 25px auto;
-            padding: 10px; /* Padding ini sekarang menciptakan ketebalan border */
-            background: #000000; /* Latar belakang menjadi hitam, berfungsi sebagai border */
+            padding: 10px;
+            background: #000000;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-sizing: border-box; /* Memastikan padding termasuk dalam total width/height */
+            box-sizing: border-box;
         }
         #qrcode canvas {
-             /* Pastikan canvas tidak melebihi padding parent */
             max-width: 100%;
             height: auto;
         }
         input[type="text"] {
-            width: calc(100% - 24px); /* Kalkulasi lebar agar pas */
+            width: calc(100% - 24px);
             padding: 12px;
-            margin-bottom: 20px; /* Jarak lebih besar */
+            margin-bottom: 20px;
             border: 1px solid #ddd;
-            border-radius: 8px; /* Sudut lebih bulat */
+            border-radius: 8px;
             font-size: 16px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         input[type="text"]:focus {
             outline: none;
             border-color: #007bff;
-            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2); /* Efek glow saat input aktif */
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
         }
         button {
             padding: 12px 25px;
@@ -71,16 +68,16 @@
             color: white;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 600; /* Teks tombol lebih tebal */
-            transition: background-color 0.3s ease, transform 0.2s ease; /* Transisi halus */
-            display: inline-block; /* Agar transform bekerja */
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-block;
         }
         button:hover {
             background-color: #0056b3;
-            transform: translateY(-2px); /* Efek sedikit terangkat saat di-hover */
+            transform: translateY(-2px);
         }
         button:active {
-            transform: translateY(0); /* Kembali ke posisi semula saat diklik */
+            transform: translateY(0);
         }
         #download-button {
             background-color: #28a745;
@@ -100,33 +97,25 @@
 
         <div id="qrcode"></div>
 
-        <button id="download-button" style="display: none;">Unduh sebagai JPG</button>
+        <button id="download-button" style="display: none;">Unduh sebagai PNG</button>
     </div>
 
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
-        // Membuat objek QRCode dengan pengaturan warna yang DIBALIK
-        var qrcode = new QRCode(document.getElementById("qrcode"), {
-            width : 256,
-            height : 256,
-            colorDark : "#ffffff", // Warna kode QR menjadi PUTIH
-            colorLight : "#000000", // Warna latar belakang menjadi HITAM
-            correctLevel : QRCode.CorrectLevel.H
-        });
+        var qrCodeObject = null; // Variabel global untuk menyimpan objek QR Code
 
-        function generateQrCode() {
+        function generateQrCodePreview() {
             var text = document.getElementById("text-input").value;
             var qrCodeContainer = document.getElementById("qrcode");
             
-            // Mengosongkan kontainer sebelum menghasilkan kode baru
             qrCodeContainer.innerHTML = ''; 
             
             if (text) {
-                // Membuat ulang objek untuk menghindari masalah pada generasi kedua, dst.
-                qrcode = new QRCode(qrCodeContainer, {
+                // Hasilkan QR code untuk ditampilkan di layar (resolusi standar)
+                qrCodeObject = new QRCode(qrCodeContainer, {
                     text: text,
                     width : 236, // Ukuran dikurangi padding (256 - 10*2)
-                    height : 236, // Ukuran dikurangi padding (256 - 10*2)
+                    height : 236,
                     colorDark : "#ffffff",
                     colorLight : "#000000",
                     correctLevel : QRCode.CorrectLevel.H
@@ -135,45 +124,74 @@
                 document.getElementById("download-button").style.display = "inline-block";
             } else {
                 alert("Silakan masukkan teks atau URL");
+                document.getElementById("download-button").style.display = "none";
             }
         }
 
-        // Event listener untuk tombol "Hasilkan"
         document.getElementById("generate-button").addEventListener("click", function(){
-            generateQrCode();
+            generateQrCodePreview();
         });
 
-        // Event listener untuk tombol "Unduh"
         document.getElementById("download-button").addEventListener("click", function(){
-            var originalCanvas = document.querySelector("#qrcode canvas");
+            var text = document.getElementById("text-input").value;
             
-            if (!originalCanvas) {
-                alert("Silakan hasilkan Kode QR terlebih dahulu.");
+            if (!text) {
+                alert("Tidak ada data untuk menghasilkan Kode QR.");
                 return;
             }
-            
-            // Membuat canvas baru dengan ukuran 500x500
-            var downloadCanvas = document.createElement('canvas');
-            downloadCanvas.width = 500;
-            downloadCanvas.height = 500;
-            var ctx = downloadCanvas.getContext('2d');
 
-            var borderSize = 15; // Atur ketebalan border sesuai keinginan
+            // --- LOGIKA BARU UNTUK UNDUHAN HIGH-RES ---
 
-            // 1. Isi seluruh canvas unduhan dengan warna hitam, yang akan berfungsi sebagai border.
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
-            
-            // 2. Gambar kode QR asli di atasnya, tetapi lebih kecil, sehingga menyisakan border hitam di sekelilingnya.
-            ctx.drawImage(originalCanvas, borderSize, borderSize, downloadCanvas.width - (borderSize * 2), downloadCanvas.height - (borderSize * 2));
+            // 1. Buat elemen sementara yang tidak terlihat untuk menampung QR code resolusi tinggi
+            var tempContainer = document.createElement('div');
+            tempContainer.style.display = 'none';
+            document.body.appendChild(tempContainer);
 
-            // Mengubah canvas menjadi data URL format JPG
-            var image = downloadCanvas.toDataURL("image/jpeg", 1.0);
-            
-            var link = document.createElement('a');
-            link.download = 'kode-qr.jpg'; // Mengatur nama file
-            link.href = image;
-            link.click();
+            // 2. Tentukan ukuran resolusi tinggi dan ukuran border
+            const highResSize = 1200; // Resolusi total gambar (misal 1200x1200 px)
+            const borderSize = 50;   // Lebar border di setiap sisi
+            const qrSize = highResSize - (borderSize * 2); // Ukuran asli QR code di dalamnya
+
+            // 3. Hasilkan objek QRCode BARU di elemen sementara dengan resolusi tinggi
+            new QRCode(tempContainer, {
+                text: text,
+                width: qrSize,
+                height: qrSize,
+                colorDark : "#ffffff",
+                colorLight : "#000000",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            // 4. Beri sedikit waktu agar library selesai menggambar canvas
+            setTimeout(function() {
+                // Ambil canvas resolusi tinggi yang baru dibuat
+                var highResCanvas = tempContainer.querySelector("canvas");
+
+                // Buat canvas akhir untuk menggabungkan border dan QR code
+                var finalCanvas = document.createElement('canvas');
+                finalCanvas.width = highResSize;
+                finalCanvas.height = highResSize;
+                var ctx = finalCanvas.getContext('2d');
+
+                // Gambar latar belakang hitam (yang akan menjadi border)
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+                // Gambar QR code resolusi tinggi di tengah-tengah
+                ctx.drawImage(highResCanvas, borderSize, borderSize);
+
+                // 5. Ubah canvas final menjadi format PNG untuk kualitas terbaik
+                var image = finalCanvas.toDataURL("image/png");
+                
+                var link = document.createElement('a');
+                link.download = 'kode-qr.png'; // Ganti nama file menjadi .png
+                link.href = image;
+                link.click();
+
+                // 6. Hapus elemen sementara dari dokumen
+                document.body.removeChild(tempContainer);
+
+            }, 50); // Delay 50ms sudah cukup
         });
     </script>
 
