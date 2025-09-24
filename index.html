@@ -31,17 +31,17 @@
             margin-top: 0;
             color: #333;
         }
+        /* PERUBAHAN DI SINI */
         #qrcode {
             width: 256px;
             height: 256px;
             margin: 25px auto;
-            border: 2px solid #000; /* Menambahkan border hitam */
-            padding: 10px; /* Memberi sedikit ruang di dalam */
-            background: #ffffff; /* Latar belakang hitam untuk QR code terbalik */
-            border-radius: 10px; /* Sudut bulat untuk area QR code */
-            display: flex; /* Menggunakan flexbox untuk memusatkan canvas */
+            padding: 10px; /* Padding ini sekarang menciptakan ketebalan border */
+            background: #000000; /* Latar belakang menjadi hitam, berfungsi sebagai border */
+            display: flex;
             justify-content: center;
             align-items: center;
+            box-sizing: border-box; /* Memastikan padding termasuk dalam total width/height */
         }
         #qrcode canvas {
              /* Pastikan canvas tidak melebihi padding parent */
@@ -125,8 +125,8 @@
                 // Membuat ulang objek untuk menghindari masalah pada generasi kedua, dst.
                 qrcode = new QRCode(qrCodeContainer, {
                     text: text,
-                    width : 256,
-                    height : 256,
+                    width : 236, // Ukuran dikurangi padding (256 - 10*2)
+                    height : 236, // Ukuran dikurangi padding (256 - 10*2)
                     colorDark : "#ffffff",
                     colorLight : "#000000",
                     correctLevel : QRCode.CorrectLevel.H
@@ -165,15 +165,13 @@
             ctx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
             
             // 2. Gambar kode QR asli di atasnya, tetapi lebih kecil, sehingga menyisakan border hitam di sekelilingnya.
-            // Posisi gambar (x, y) adalah (borderSize, borderSize)
-            // Ukuran gambar adalah total lebar/tinggi dikurangi dua kali ukuran border
             ctx.drawImage(originalCanvas, borderSize, borderSize, downloadCanvas.width - (borderSize * 2), downloadCanvas.height - (borderSize * 2));
 
             // Mengubah canvas menjadi data URL format JPG
             var image = downloadCanvas.toDataURL("image/jpeg", 1.0);
             
             var link = document.createElement('a');
-            link.download = 'Code-qr.jpg'; // Mengatur nama file
+            link.download = 'kode-qr.jpg'; // Mengatur nama file
             link.href = image;
             link.click();
         });
