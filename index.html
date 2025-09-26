@@ -3,80 +3,133 @@
 <head>
     <title>Generator Kode QR</title>
     <style>
-        /* CSS Disederhanakan untuk Tata Letak yang Proporsional & Responsif */
-
-        /* Mengatur agar semua elemen menggunakan perhitungan box-model yang konsisten */
-        * {
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: sans-serif; /* Font dasar yang ada di semua browser */
-            margin: 0;
-            padding: 20px; /* Memberi sedikit ruang di tepi layar */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            background-color: #f4f7f9;
+            margin: 0;
         }
         
-        /* Kontainer utama untuk mengatur lebar maksimum konten */
+        /* --- PERUBAHAN DI SINI --- */
+        /* Properti visual dari container dihapus agar menyatu dengan background body */
         .container {
-            width: 100%;
-            max-width: 450px; /* Batas lebar maksimal agar tidak terlalu lebar di desktop */
+            /* background-color: white; <-- Dihapus */
+            /* padding: 40px; <-- Dihapus agar tidak ada spasi ekstra */
+            /* border-radius: 15px; <-- Dihapus */
+            /* box-shadow: 0 10px 25px rgba(0,0,0,0.08); <-- Dihapus */
             text-align: center;
+            width: 90%;
+            max-width: 400px;
+            /* transition: all 0.3s ease; <-- Dihapus karena tidak relevan lagi */
         }
+
+        /* Hover effect dihapus karena container sudah tidak terlihat */
+        /* .container:hover {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        } */
+        /* --- AKHIR PERUBAHAN --- */
 
         h2 {
             margin-top: 0;
+            color: #333;
         }
-
-        /* Membuat area QR Code responsif */
         #qrcode {
-            width: 100%; /* Lebar akan menyesuaikan kontainer */
-            max-width: 300px; /* Ukuran maksimal agar tidak terlalu besar */
-            height: auto; /* Tinggi akan menyesuaikan lebar secara proporsional */
-            margin: 20px auto; /* Memberi jarak atas/bawah dan membuatnya di tengah */
+            width: 256px;
+            height: 256px;
+            margin: 25px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
         }
-        
         #qrcode canvas, #qrcode svg {
-            width: 100%;
+            max-width: 100%;
             height: auto;
         }
-
-        /* Membuat input dan select memenuhi lebar kontainer */
         input[type="text"], select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        /* Membuat tombol memenuhi lebar kontainer */
-        button {
-            width: 100%;
+            width: calc(100% - 24px);
             padding: 12px;
-            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             font-size: 16px;
-            cursor: pointer;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff; /* Menambahkan background putih pada input agar terlihat jelas */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Menambahkan sedikit shadow pada input */
         }
-
-        /* Mengatur opsi warna dan bentuk dalam 2 kolom */
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+        }
+        button {
+            padding: 12px 25px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-block;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #download-button {
+            background-color: #28a745;
+        }
+        #download-button:hover {
+            background-color: #218838;
+        }
         .options-container {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Dua kolom dengan lebar sama */
-            gap: 20px; /* Jarak antar item */
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             margin-bottom: 20px;
             text-align: left;
         }
-
         .option-item label {
             display: block;
             margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
         }
-        
-        /* Memastikan color picker tidak terlalu besar */
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+        }
         input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
             width: 40px;
             height: 40px;
+            background-color: transparent;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+            overflow: hidden;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border-radius: 50%;
+            border: none;
+        }
+        input[type="color"]::-moz-color-swatch {
+            border-radius: 50%;
+            border: none;
         }
     </style>
 </head>
@@ -101,14 +154,19 @@
             <div> </div>
             <div class="option-item">
                 <label for="color-dark">Warna Titik</label>
-                <input type="color" id="color-dark" value="#000000"> <!-- Warna diubah jadi hitam agar terlihat default -->
+                <div class="color-picker-wrapper">
+                    <input type="color" id="color-dark" value="#ffffff">
+                </div>
             </div>
             <div class="option-item">
                 <label for="color-light">Warna Latar</label>
-                <input type="color" id="color-light" value="#ffffff"> <!-- Warna diubah jadi putih agar terlihat default -->
+                 <div class="color-picker-wrapper">
+                    <input type="color" id="color-light" value="#000000">
+                </div>
             </div>
         </div>
         
+        <br>
         <button id="generate-button">Hasilkan Kode QR</button>
 
         <div id="qrcode"></div>
@@ -116,7 +174,6 @@
         <button id="download-button" style="display: none;">Unduh sebagai PNG</button>
     </div>
 
-    <!-- Script tidak diubah sama sekali -->
     <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
     <script>
         var qrCodeObject = null; // Variabel global untuk menyimpan objek QR Code
@@ -133,10 +190,10 @@
             
             if (text) {
                 qrCodeObject = new QRCodeStyling({
-                    width: 256, // Ukuran render internal tetap, tampilan diatur oleh CSS
-                    height: 256,
+                    width: 512,
+                    height: 512,
                     data: text,
-                    margin: 10,
+                    margin: 20,
                     dotsOptions: { color: colorDark, type: dotStyle },
                     backgroundOptions: { color: colorLight },
                     cornersSquareOptions: { color: colorDark },
@@ -145,7 +202,7 @@
                 });
                 
                 qrCodeObject.append(qrCodeContainer);
-                document.getElementById("download-button").style.display = "block"; // Ubah jadi block agar memenuhi lebar
+                document.getElementById("download-button").style.display = "inline-block";
             } else {
                 alert("Silakan masukkan teks atau URL");
                 qrCodeObject = null;
@@ -162,7 +219,53 @@
                 alert("Tidak ada Kode QR untuk diunduh.");
                 return;
             }
-            qrCodeObject.download({ name: "kode-qr", extension: "png" });
+
+            var text = document.getElementById("text-input").value;
+            var dotStyle = document.getElementById("dot-style").value;
+            var colorDark = document.getElementById("color-dark").value;
+            var colorLight = document.getElementById("color-light").value;
+
+            var tempContainer = document.createElement('div');
+            tempContainer.style.display = 'none';
+            document.body.appendChild(tempContainer);
+
+            const highResSize = 1024;
+            const marginSize = 40;
+
+            const highResQrCode = new QRCodeStyling({
+                width: highResSize,
+                height: highResSize,
+                data: text,
+                margin: marginSize,
+                type: 'canvas',
+                dotsOptions: { color: colorDark, type: dotStyle },
+                backgroundOptions: { color: colorLight },
+                cornersSquareOptions: { color: colorDark },
+                cornersDotOptions: { color: colorDark },
+                qrOptions: { errorCorrectionLevel: 'M' }
+            });
+
+            highResQrCode.append(tempContainer);
+
+            setTimeout(function() {
+                var highResCanvas = tempContainer.querySelector("canvas");
+
+                if (!highResCanvas) {
+                    console.error("Gagal membuat canvas untuk diunduh.");
+                    document.body.removeChild(tempContainer);
+                    return;
+                }
+                
+                var image = highResCanvas.toDataURL("image/png");
+                
+                var link = document.createElement('a');
+                link.download = 'kode-qr.png';
+                link.href = image;
+                link.click();
+
+                document.body.removeChild(tempContainer);
+
+            }, 100);
         });
     </script>
 
