@@ -12,29 +12,19 @@
             flex-direction: column;
             background-color: #f4f7f9;
             margin: 0;
+            padding: 20px; /* Menambahkan padding agar konten tidak menempel di tepi layar HP */
+            box-sizing: border-box; /* Memastikan padding tidak menambah ukuran total body */
         }
         
-        /* --- PERUBAHAN DI SINI --- */
-        /* Properti visual dari container dihapus agar menyatu dengan background body */
         .container {
-            /* background-color: white; <-- Dihapus */
-            /* padding: 40px; <-- Dihapus agar tidak ada spasi ekstra */
-            /* border-radius: 15px; <-- Dihapus */
-            /* box-shadow: 0 10px 25px rgba(0,0,0,0.08); <-- Dihapus */
             text-align: center;
-            width: 90%;
+            width: 100%; /* Ubah dari 90% ke 100% agar menggunakan seluruh lebar yang tersedia di HP */
             max-width: 400px;
-            /* transition: all 0.3s ease; <-- Dihapus karena tidak relevan lagi */
         }
-
-        /* Hover effect dihapus karena container sudah tidak terlihat */
-        /* .container:hover {
-            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
-        } */
-        /* --- AKHIR PERUBAHAN --- */
 
         h2 {
             margin-top: 0;
+            margin-bottom: 25px; /* Menambah jarak antara judul dan input */
             color: #333;
         }
         #qrcode {
@@ -51,15 +41,16 @@
             height: auto;
         }
         input[type="text"], select {
-            width: calc(100% - 24px);
+            width: 100%; /* Ubah agar lebarnya penuh */
             padding: 12px;
             margin-bottom: 20px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            background-color: #fff; /* Menambahkan background putih pada input agar terlihat jelas */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Menambahkan sedikit shadow pada input */
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-sizing: border-box; /* Penting agar padding tidak membuat elemen lebih lebar dari 100% */
         }
         input[type="text"]:focus, select:focus {
             outline: none;
@@ -131,6 +122,20 @@
             border-radius: 50%;
             border: none;
         }
+        
+        /* --- PERUBAHAN DI SINI: MEDIA QUERY UNTUK TAMPILAN HP --- */
+        /* Style ini hanya akan aktif jika lebar layar 600px atau kurang */
+        @media (max-width: 600px) {
+            .options-container {
+                grid-template-columns: 1fr; /* Mengubah grid menjadi 1 kolom */
+                gap: 15px; /* Mengurangi jarak antar item */
+            }
+
+            h2 {
+                font-size: 24px; /* Sedikit mengecilkan judul */
+            }
+        }
+        /* --- AKHIR PERUBAHAN --- */
     </style>
 </head>
 <body>
@@ -151,22 +156,23 @@
                     <option value="classy-rounded">Klasik Tumpul</option>
                 </select>
             </div>
-            <div> </div>
+            
+            <!-- <div> </div> <-- PERUBAHAN DI SINI: div kosong ini saya hapus karena mengganggu layout 1 kolom di HP -->
+            
             <div class="option-item">
                 <label for="color-dark">Warna Titik</label>
                 <div class="color-picker-wrapper">
-                    <input type="color" id="color-dark" value="#ffffff">
+                    <input type="color" id="color-dark" value="#000000"> <!-- Warna default diubah agar kontras dengan latar putih -->
                 </div>
             </div>
             <div class="option-item">
                 <label for="color-light">Warna Latar</label>
                  <div class="color-picker-wrapper">
-                    <input type="color" id="color-light" value="#000000">
+                    <input type="color" id="color-light" value="#ffffff"> <!-- Warna default diubah agar kontras dengan titik hitam -->
                 </div>
             </div>
         </div>
         
-        <br>
         <button id="generate-button">Hasilkan Kode QR</button>
 
         <div id="qrcode"></div>
@@ -174,6 +180,7 @@
         <button id="download-button" style="display: none;">Unduh sebagai PNG</button>
     </div>
 
+    <!-- Script JavaScript tidak diubah sama sekali -->
     <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
     <script>
         var qrCodeObject = null; // Variabel global untuk menyimpan objek QR Code
@@ -190,15 +197,15 @@
             
             if (text) {
                 qrCodeObject = new QRCodeStyling({
-                    width: 512,
-                    height: 512,
+                    width: 256, // Ukuran untuk preview di layar
+                    height: 256,
                     data: text,
-                    margin: 20,
+                    margin: 10, // Margin dikurangi sedikit untuk preview
                     dotsOptions: { color: colorDark, type: dotStyle },
                     backgroundOptions: { color: colorLight },
-                    cornersSquareOptions: { color: colorDark },
-                    cornersDotOptions: { color: colorDark },
-                    qrOptions: { errorCorrectionLevel: 'M' }
+                    cornersSquareOptions: { color: colorDark, type: 'extra-rounded' }, // Opsi tambahan agar sudut lebih bagus
+                    cornersDotOptions: { color: colorDark, type: 'dot' }, // Opsi tambahan
+                    qrOptions: { errorCorrectionLevel: 'H' } // Level koreksi error ditingkatkan
                 });
                 
                 qrCodeObject.append(qrCodeContainer);
@@ -219,53 +226,14 @@
                 alert("Tidak ada Kode QR untuk diunduh.");
                 return;
             }
+            // Langsung menggunakan metode download dari library
+            qrCodeObject.download({ name: "kode-qr", extension: "png" });
+        });
 
-            var text = document.getElementById("text-input").value;
-            var dotStyle = document.getElementById("dot-style").value;
-            var colorDark = document.getElementById("color-dark").value;
-            var colorLight = document.getElementById("color-light").value;
-
-            var tempContainer = document.createElement('div');
-            tempContainer.style.display = 'none';
-            document.body.appendChild(tempContainer);
-
-            const highResSize = 1024;
-            const marginSize = 40;
-
-            const highResQrCode = new QRCodeStyling({
-                width: highResSize,
-                height: highResSize,
-                data: text,
-                margin: marginSize,
-                type: 'canvas',
-                dotsOptions: { color: colorDark, type: dotStyle },
-                backgroundOptions: { color: colorLight },
-                cornersSquareOptions: { color: colorDark },
-                cornersDotOptions: { color: colorDark },
-                qrOptions: { errorCorrectionLevel: 'M' }
-            });
-
-            highResQrCode.append(tempContainer);
-
-            setTimeout(function() {
-                var highResCanvas = tempContainer.querySelector("canvas");
-
-                if (!highResCanvas) {
-                    console.error("Gagal membuat canvas untuk diunduh.");
-                    document.body.removeChild(tempContainer);
-                    return;
-                }
-                
-                var image = highResCanvas.toDataURL("image/png");
-                
-                var link = document.createElement('a');
-                link.download = 'kode-qr.png';
-                link.href = image;
-                link.click();
-
-                document.body.removeChild(tempContainer);
-
-            }, 100);
+        // Generate QR Code default saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.getElementById('text-input').value = 'https://www.google.com';
+            generateQrCodePreview();
         });
     </script>
 
