@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generator Kode QR</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            background-color: #f4f7f9;
+            margin: 0;
+        }
+        
+        /* --- PERUBAHAN DI SINI --- */
+        /* Properti visual dari container dihapus agar menyatu dengan background body */
+        .container {
+            /* background-color: white; <-- Dihapus */
+            /* padding: 40px; <-- Dihapus agar tidak ada spasi ekstra */
+            /* border-radius: 15px; <-- Dihapus */
+            /* box-shadow: 0 10px 25px rgba(0,0,0,0.08); <-- Dihapus */
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            /* transition: all 0.3s ease; <-- Dihapus karena tidak relevan lagi */
+        }
+
+        /* Hover effect dihapus karena container sudah tidak terlihat */
+        /* .container:hover {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        } */
+        /* --- AKHIR PERUBAHAN --- */
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        #qrcode {
+            width: 256px;
+            height: 256px;
+            margin: 25px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        #qrcode canvas, #qrcode svg {
+            max-width: 100%;
+            height: auto;
+        }
+        input[type="text"], select {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff; /* Menambahkan background putih pada input agar terlihat jelas */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Menambahkan sedikit shadow pada input */
+        }
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+        }
+        button {
+            padding: 12px 25px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-block;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #download-button {
+            background-color: #28a745;
+        }
+        #download-button:hover {
+            background-color: #218838;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .option-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+            overflow: hidden;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border-radius: 50%;
+            border: none;
+        }
+        input[type="color"]::-moz-color-swatch {
+            border-radius: 50%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Generator Kode QR</h2>
+        <input type="text" id="text-input" placeholder="Masukkan teks atau URL di sini">
+
+        <div class="options-container">
+            <div class="option-item">
+                <label for="dot-style">Bentuk Titik</label>
+                <select id="dot-style">
+                    <option value="square">Kotak</option>
+                    <option value="dots">Titik</option>
+                    <option value="rounded">Kotak Tumpul</option>
+                    <option value="extra-rounded">Bundar</option>
+                    <option value="classy">Klasik</option>
+                    <option value="classy-rounded">Klasik Tumpul</option>
+                </select>
+            </div>
+            <div> </div>
+            <div class="option-item">
+                <label for="color-dark">Warna Titik</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" id="color-dark" value="#ffffff">
+                </div>
+            </div>
+            <div class="option-item">
+                <label for="color-light">Warna Latar</label>
+                 <div class="color-picker-wrapper">
+                    <input type="color" id="color-light" value="#000000">
+                </div>
+            </div>
+        </div>
+        
+        <br>
+        <button id="generate-button">Hasilkan Kode QR</button>
+
+        <div id="qrcode"></div>
+
+        <button id="download-button" style="display: none;">Unduh sebagai PNG</button>
+    </div>
+
+    <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    <script>
+        var qrCodeObject = null; // Variabel global untuk menyimpan objek QR Code
+
+        function generateQrCodePreview() {
+            var text = document.getElementById("text-input").value;
+            var qrCodeContainer = document.getElementById("qrcode");
+            
+            var dotStyle = document.getElementById("dot-style").value;
+            var colorDark = document.getElementById("color-dark").value;
+            var colorLight = document.getElementById("color-light").value;
+            
+            qrCodeContainer.innerHTML = ''; 
+            
+            if (text) {
+                qrCodeObject = new QRCodeStyling({
+                    width: 512,
+                    height: 512,
+                    data: text,
+                    margin: 20,
+                    dotsOptions: { color: colorDark, type: dotStyle },
+                    backgroundOptions: { color: colorLight },
+                    cornersSquareOptions: { color: colorDark },
+                    cornersDotOptions: { color: colorDark },
+                    qrOptions: { errorCorrectionLevel: 'M' }
+                });
+                
+                qrCodeObject.append(qrCodeContainer);
+                document.getElementById("download-button").style.display = "inline-block";
+            } else {
+                alert("Silakan masukkan teks atau URL");
+                qrCodeObject = null;
+                document.getElementById("download-button").style.display = "none";
+            }
+        }
+
+        document.getElementById("generate-button").addEventListener("click", function(){
+            generateQrCodePreview();
+        });
+
+        document.getElementById("download-button").addEventListener("click", function(){
+            if (!qrCodeObject) {
+                alert("Tidak ada Kode QR untuk diunduh.");
+                return;
+            }
+
+            var text = document.getElementById("text-input").value;
+            var dotStyle = document.getElementById("dot-style").value;
+            var colorDark = document.getElementById("color-dark").value;
+            var colorLight = document.getElementById("color-light").value;
+
+            var tempContainer = document.createElement('div');
+            tempContainer.style.display = 'none';
+            document.body.appendChild(tempContainer);
+
+            const highResSize = 1024;
+            const marginSize = 40;
+
+            const highResQrCode = new QRCodeStyling({
+                width: highResSize,
+                height: highResSize,
+                data: text,
+                margin: marginSize,
+                type: 'canvas',
+                dotsOptions: { color: colorDark, type: dotStyle },
+                backgroundOptions: { color: colorLight },
+                cornersSquareOptions: { color: colorDark },
+                cornersDotOptions: { color: colorDark },
+                qrOptions: { errorCorrectionLevel: 'M' }
+            });
+
+            highResQrCode.append(tempContainer);
+
+            setTimeout(function() {
+                var highResCanvas = tempContainer.querySelector("canvas");
+
+                if (!highResCanvas) {
+                    console.error("Gagal membuat canvas untuk diunduh.");
+                    document.body.removeChild(tempContainer);
+                    return;
+                }
+                
+                var image = highResCanvas.toDataURL("image/png");
+                
+                var link = document.createElement('a');
+                link.download = 'kode-qr.png';
+                link.href = image;
+                link.click();
+
+                document.body.removeChild(tempContainer);
+
+            }, 100);
+        });
+    </script>
+
+</body>
+</html>
