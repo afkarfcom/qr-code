@@ -166,6 +166,13 @@
                     <input type="color" id="color-light" value="#ffffff">
                 </div>
             </div>
+            
+            <!-- PENAMBAHAN OPSI TRANSPARAN DI SINI -->
+            <div class="option-item" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-start; margin-top: -10px;">
+                <input type="checkbox" id="transparent-bg" style="width: auto; margin: 0 10px 0 0; cursor: pointer;">
+                <label for="transparent-bg" style="margin: 0; font-weight: normal; color: #555; cursor: pointer;">Latar Transparan</label>
+            </div>
+            <!-- AKHIR PENAMBAHAN -->
         </div>
         
         <br>
@@ -180,13 +187,29 @@
     <script>
         var qrCodeObject = null; // Variabel global untuk menyimpan objek QR Code
 
+        // PENAMBAHAN EVENT LISTENER UNTUK CHECKBOX TRANSPARAN
+        document.getElementById('transparent-bg').addEventListener('change', function() {
+            var colorLightInput = document.getElementById('color-light');
+            var colorPickerWrapper = colorLightInput.closest('.color-picker-wrapper');
+            if (this.checked) {
+                colorLightInput.disabled = true;
+                colorPickerWrapper.style.opacity = '0.5';
+            } else {
+                colorLightInput.disabled = false;
+                colorPickerWrapper.style.opacity = '1';
+            }
+        });
+
         function generateQrCodePreview() {
             var text = document.getElementById("text-input").value;
             var qrCodeContainer = document.getElementById("qrcode");
             
             var dotStyle = document.getElementById("dot-style").value;
             var colorDark = document.getElementById("color-dark").value;
-            var colorLight = document.getElementById("color-light").value;
+            
+            // PERUBAHAN LOGIKA WARNA LATAR
+            var isTransparent = document.getElementById("transparent-bg").checked;
+            var colorLight = isTransparent ? "transparent" : document.getElementById("color-light").value;
             
             qrCodeContainer.innerHTML = ''; 
             
@@ -197,7 +220,7 @@
                     data: text,
                     margin: 20,
                     dotsOptions: { color: colorDark, type: dotStyle },
-                    backgroundOptions: { color: colorLight },
+                    backgroundOptions: { color: colorLight }, // Menggunakan variabel baru
                     cornersSquareOptions: { color: colorDark },
                     cornersDotOptions: { color: colorDark },
                     qrOptions: { errorCorrectionLevel: 'M' }
@@ -225,7 +248,10 @@
             var text = document.getElementById("text-input").value;
             var dotStyle = document.getElementById("dot-style").value;
             var colorDark = document.getElementById("color-dark").value;
-            var colorLight = document.getElementById("color-light").value;
+            
+            // PERUBAHAN LOGIKA WARNA LATAR UNTUK UNDUHAN
+            var isTransparent = document.getElementById("transparent-bg").checked;
+            var colorLight = isTransparent ? "transparent" : document.getElementById("color-light").value;
 
             var tempContainer = document.createElement('div');
             tempContainer.style.display = 'none';
@@ -241,7 +267,7 @@
                 margin: marginSize,
                 type: 'canvas',
                 dotsOptions: { color: colorDark, type: dotStyle },
-                backgroundOptions: { color: colorLight },
+                backgroundOptions: { color: colorLight }, // Menggunakan variabel baru
                 cornersSquareOptions: { color: colorDark },
                 cornersDotOptions: { color: colorDark },
                 qrOptions: { errorCorrectionLevel: 'M' }
